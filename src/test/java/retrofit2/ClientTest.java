@@ -1,3 +1,5 @@
+package retrofit2;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpMethod;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class TheTest {
+public class ClientTest {
 
   public static final String API_URL = "http://localhost:8080";
 
