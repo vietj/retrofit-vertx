@@ -4,6 +4,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.ext.retrofit.VertxRetrofit;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
@@ -70,70 +71,7 @@ public class ClientTest {
 
     // Create a very simple REST adapter which points the GitHub API.
     Retrofit retrofit = new Retrofit.Builder()
-        .callFactory(new okhttp3.Call.Factory() {
-          @Override
-          public okhttp3.Call newCall(Request request) {
-            return new okhttp3.Call() {
-              @Override
-              public Request request() {
-                return request;
-              }
-              @Override
-              public Response execute() throws IOException {
-                CompletableFuture<Response> future = new CompletableFuture<>();
-                enqueue(new Callback() {
-                  @Override
-                  public void onResponse(okhttp3.Call call, Response response) throws IOException {
-                    future.complete(response);
-                  }
-                  @Override
-                  public void onFailure(okhttp3.Call call, IOException e) {
-                    future.completeExceptionally(e);
-                  }
-                });
-                try {
-                  return future.get(10, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                  throw new IOException(e);
-                }
-              }
-              @Override
-              public void enqueue(Callback callback) {
-                HttpMethod method = HttpMethod.valueOf(request.method());
-                client.requestAbs(method, request.url().toString(), resp -> {
-                  resp.bodyHandler(body -> {
-                    try {
-                      Response.Builder builder = new Response.Builder();
-                      builder.protocol(Protocol.HTTP_1_1);
-                      builder.request(request);
-                      builder.code(resp.statusCode());
-                      for (Map.Entry<String, String> header : resp.headers()) {
-                        builder.addHeader(header.getKey(), header.getValue());
-                      }
-                      String mediaTypeHeader = resp.getHeader("Content-Type");
-                      MediaType mediaType =  mediaTypeHeader != null ? MediaType.parse(mediaTypeHeader) : null;
-                      builder.body(ResponseBody.create(mediaType, body.getBytes()));
-                      callback.onResponse(this, builder.build());
-                    } catch (Exception e) {
-                      callback.onFailure(this, new IOException(e));
-                    }
-                  });
-                }).end();
-              }
-              @Override
-              public void cancel() {
-              }
-              @Override
-              public boolean isExecuted() {
-                return false;
-              }
-              @Override
-              public boolean isCanceled() {
-                return false;
-              }
-            };
-          }
-        })
+        .callFactory(new VertxRetrofit(client))
         .baseUrl(API_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build();
