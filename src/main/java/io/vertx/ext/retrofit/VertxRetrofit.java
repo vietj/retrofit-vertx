@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -26,39 +27,45 @@ public class VertxRetrofit implements Call.Factory {
     this.client = client;
   }
 
-  @Override
-  public okhttp3.Call newCall(Request request) {
-    return new okhttp3.Call() {
+  private class VertxCall implements okhttp3.Call {
 
-      @Override
-      public Request request() {
-        return request;
-      }
+    private final Request request;
+    private final AtomicBoolean executed = new AtomicBoolean();
 
-      @Override
-      public Response execute() throws IOException {
-        CompletableFuture<Response> future = new CompletableFuture<>();
-        enqueue(new Callback() {
+    VertxCall(Request request) {
+      this.request = request;
+    }
 
-          @Override
-          public void onResponse(okhttp3.Call call, Response response) throws IOException {
-            future.complete(response);
-          }
+    @Override
+    public Request request() {
+      return request;
+    }
 
-          @Override
-          public void onFailure(okhttp3.Call call, IOException e) {
-            future.completeExceptionally(e);
-          }
-        });
-        try {
-          return future.get(10, TimeUnit.SECONDS);
-        } catch (Exception e) {
-          throw new IOException(e);
+    @Override
+    public Response execute() throws IOException {
+      CompletableFuture<Response> future = new CompletableFuture<>();
+      enqueue(new Callback() {
+
+        @Override
+        public void onResponse(okhttp3.Call call, Response response) throws IOException {
+          future.complete(response);
         }
-      }
 
-      @Override
-      public void enqueue(Callback callback) {
+        @Override
+        public void onFailure(okhttp3.Call call, IOException e) {
+          future.completeExceptionally(e);
+        }
+      });
+      try {
+        return future.get(10, TimeUnit.SECONDS);
+      } catch (Exception e) {
+        throw new IOException(e);
+      }
+    }
+
+    @Override
+    public void enqueue(Callback callback) {
+      if (executed.compareAndSet(false, true)) {
         HttpMethod method = HttpMethod.valueOf(request.method());
         client.requestAbs(method, request.url().toString(), resp -> {
           resp.bodyHandler(body -> {
@@ -79,21 +86,33 @@ public class VertxRetrofit implements Call.Factory {
             }
           });
         }).end();
+      } else {
+        callback.onFailure(this, new IOException("Already executed"));
       }
+    }
 
-      @Override
-      public void cancel() {
-      }
+    @Override
+    public void cancel() {
+    }
 
-      @Override
-      public boolean isExecuted() {
-        return false;
-      }
+    @Override
+    public boolean isExecuted() {
+      return executed.get();
+    }
 
-      @Override
-      public boolean isCanceled() {
-        return false;
-      }
-    };
+    @Override
+    public boolean isCanceled() {
+      return false;
+    }
+
+    @Override
+    public Call clone() {
+      return new VertxCall(request);
+    }
+  }
+
+  @Override
+  public okhttp3.Call newCall(Request request) {
+    return new VertxCall(request);
   }
 }
