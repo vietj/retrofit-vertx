@@ -1,10 +1,15 @@
 package retrofit2;
 
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.retrofit.VertxRetrofit;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
@@ -15,6 +20,7 @@ import okio.BufferedSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -28,9 +34,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
+@RunWith(VertxUnitRunner.class)
 public class ClientTest {
 
   public static final String API_URL = "http://localhost:8080";
@@ -53,78 +62,69 @@ public class ClientTest {
   }
 
   Vertx vertx;
+  GitHub github;
+  HttpClient client;
 
   @Before
   public void setUp() throws Exception {
     vertx = Vertx.vertx();
-    startServer();
-  }
-
-  @After
-  public void tearDown() {
-    vertx.close();
-  }
-
-  @Test
-  public void doTest() throws Exception {
-    HttpClient client = vertx.createHttpClient();
-
-    // Create a very simple REST adapter which points the GitHub API.
+    client = vertx.createHttpClient();
     Retrofit retrofit = new Retrofit.Builder()
         .callFactory(new VertxRetrofit(client))
         .baseUrl(API_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build();
+    github = retrofit.create(GitHub.class);
+  }
 
-    // Create an instance of our GitHub API interface.
-    GitHub github = retrofit.create(GitHub.class);
+  @After
+  public void tearDown(TestContext ctx) {
+    vertx.close(ctx.asyncAssertSuccess());
+  }
 
-    // Create a call instance for looking up Retrofit contributors.
+  @Test
+  public void testAsync(TestContext ctx) throws Exception {
+    startServer();
     Call<List<Contributor>> asyncCall = github.contributors("square", "retrofit");
-
-    CountDownLatch latch = new CountDownLatch(1);
-
-    // Test async
+    Async async = ctx.async();
     asyncCall.enqueue(new retrofit2.Callback<List<Contributor>>() {
       @Override
       public void onResponse(Call<List<Contributor>> call, retrofit2.Response<List<Contributor>> response) {
-        for (Contributor contributor : response.body()) {
-          System.out.println(contributor.login + " (" + contributor.contributions + ")");
-        }
-        latch.countDown();
+        ctx.assertEquals(30, response.body().size());
+        async.complete();
       }
       @Override
       public void onFailure(Call<List<Contributor>> call, Throwable throwable) {
-        throwable.printStackTrace();
-        latch.countDown();
+        ctx.fail(throwable);
       }
     });
+  }
 
-    //
-    latch.await(10, TimeUnit.SECONDS);
-
-    // Create a call instance for looking up Retrofit contributors.
+  @Test
+  public void testSync() throws Exception {
+    startServer();
     Call<List<Contributor>> syncCall = github.contributors("square", "retrofit");
-
-    // Test sync
     List<Contributor> contributors = syncCall.execute().body();
-    for (Contributor contributor : contributors) {
-      System.out.println(contributor.login + " (" + contributor.contributions + ")");
-    }
+    assertEquals(30, contributors.size());
   }
 
   private void startServer() throws Exception {
-    HttpServer server = vertx.createHttpServer();
-    CompletableFuture<Void> latch = new CompletableFuture<>();
-    server.requestHandler(req -> {
+    startServer(req -> {
       switch (req.path()) {
         case "/repos/square/retrofit/contributors":
           req.response().sendFile("result.json");
           break;
         default:
           req.response().setStatusCode(404).end();
+          break;
       }
-    }).listen(8080, "localhost", ar -> {
+    });
+  }
+
+  private void startServer(Handler<HttpServerRequest> handler) throws Exception {
+    HttpServer server = vertx.createHttpServer();
+    CompletableFuture<Void> latch = new CompletableFuture<>();
+    server.requestHandler(handler).listen(8080, "localhost", ar -> {
       if (ar.succeeded()) {
         latch.complete(null);
       } else {
@@ -133,4 +133,6 @@ public class ClientTest {
     });
     latch.get(10, TimeUnit.SECONDS);
   }
+
+
 }
