@@ -108,6 +108,22 @@ public class ClientTest {
     assertEquals(30, contributors.size());
   }
 
+  @Test
+  public void testConnectError(TestContext ctx) throws Exception {
+    Call<List<Contributor>> asyncCall = github.contributors("square", "retrofit");
+    Async async = ctx.async();
+    asyncCall.enqueue(new retrofit2.Callback<List<Contributor>>() {
+      @Override
+      public void onResponse(Call<List<Contributor>> call, retrofit2.Response<List<Contributor>> response) {
+        ctx.fail();
+      }
+      @Override
+      public void onFailure(Call<List<Contributor>> call, Throwable throwable) {
+        async.complete();
+      }
+    });
+  }
+
   private void startServer() throws Exception {
     startServer(req -> {
       switch (req.path()) {

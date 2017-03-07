@@ -1,6 +1,8 @@
 package io.vertx.ext.retrofit;
 
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -66,26 +68,44 @@ public class VertxRetrofit implements Call.Factory {
     @Override
     public void enqueue(Callback callback) {
       if (executed.compareAndSet(false, true)) {
-        HttpMethod method = HttpMethod.valueOf(request.method());
-        client.requestAbs(method, request.url().toString(), resp -> {
-          resp.bodyHandler(body -> {
+        Future<Response> fut = Future.future();
+        fut.setHandler(ar -> {
+          if (ar.succeeded()) {
             try {
-              Response.Builder builder = new Response.Builder();
-              builder.protocol(Protocol.HTTP_1_1);
-              builder.request(request);
-              builder.code(resp.statusCode());
-              for (Map.Entry<String, String> header : resp.headers()) {
-                builder.addHeader(header.getKey(), header.getValue());
-              }
-              String mediaTypeHeader = resp.getHeader("Content-Type");
-              MediaType mediaType =  mediaTypeHeader != null ? MediaType.parse(mediaTypeHeader) : null;
-              builder.body(ResponseBody.create(mediaType, body.getBytes()));
-              callback.onResponse(this, builder.build());
-            } catch (Exception e) {
-              callback.onFailure(this, new IOException(e));
+              callback.onResponse(this, ar.result());
+            } catch (IOException e) {
+              // WTF ?
+              e.printStackTrace();
             }
+          } else {
+            IOException ioe;
+            Throwable cause = ar.cause();
+            if (cause instanceof IOException) {
+              ioe = (IOException) cause;
+            } else {
+              ioe = new IOException(cause);
+            }
+            callback.onFailure(this, ioe);
+          }
+        });
+        HttpMethod method = HttpMethod.valueOf(request.method());
+        HttpClientRequest request = client.requestAbs(method, this.request.url().toString(), resp -> {
+          resp.bodyHandler(body -> {
+            Response.Builder builder = new Response.Builder();
+            builder.protocol(Protocol.HTTP_1_1);
+            builder.request(this.request);
+            builder.code(resp.statusCode());
+            for (Map.Entry<String, String> header : resp.headers()) {
+              builder.addHeader(header.getKey(), header.getValue());
+            }
+            String mediaTypeHeader = resp.getHeader("Content-Type");
+            MediaType mediaType = mediaTypeHeader != null ? MediaType.parse(mediaTypeHeader) : null;
+            builder.body(ResponseBody.create(mediaType, body.getBytes()));
+            fut.tryComplete(builder.build());
           });
-        }).end();
+        });
+        request.exceptionHandler(fut::tryFail);
+        request.end();
       } else {
         callback.onFailure(this, new IOException("Already executed"));
       }
