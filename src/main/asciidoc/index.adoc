@@ -1,6 +1,6 @@
 = Retrofit Vert.x adapter
 
-An highly scalable transport layer for _Retrofit_.
+An highly scalable adapter for _Retrofit_.
 
 The _Retrofit Vert.x Adapter_ allows to use _Retrofit_ with the Vert.x library.
 
@@ -58,7 +58,7 @@ Call<List<Repo>> repos = service.listRepos("octocat");
 </dependency>
 ----
 
-This version is for Retrofit 2.2.0 and Vert.x 3.4.1-SNAPSHOT
+This version is for Retrofit 2.2.0 and Vert.x 3.4.0
 
 == Going asynchronous
 

@@ -127,7 +127,7 @@ public class ClientTest {
     });
   }
 
-  @Test
+//  @Test
   public void testResponseError(TestContext ctx) throws Exception {
     startHttpServer(req -> {
       NetSocket so = req.netSocket();
