@@ -1,4 +1,7 @@
 /**
- * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
+ * The doc.
  */
+@Document(fileName = "index.adoc")
 package com.julienviet.retrofit.vertx;
+
+import io.vertx.docgen.Document;
