@@ -11,6 +11,7 @@ import io.vertx.ext.retrofit.VertxRetrofit;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -21,9 +22,11 @@ import org.junit.runner.RunWith;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -53,11 +56,6 @@ public class ClientTest {
     Call<List<Contributor>> contributors(
         @Path("owner") String owner,
         @Path("repo") String repo);
-  }
-
-  public interface Abc {
-    @PUT("/foo/bar/") //
-    Call<ResponseBody> sendBody(@Body RequestBody body);
   }
 
   Vertx vertx;
@@ -151,6 +149,48 @@ public class ClientTest {
     });
   }
 
+  public interface SendHeaders {
+    @GET("/")
+    Call<ResponseBody> send(@Header("header")  String value, @Header("headers") List<String> values);
+  }
+
+  @Test
+  public void sendHeaders(TestContext ctx) throws Exception {
+    Async async = ctx.async();
+    startHttpServer(req -> {
+      ctx.assertEquals("header_value", req.getHeader("header"));
+      ctx.assertEquals(Arrays.asList("headers_value_1", "headers_value_2"), req.headers().getAll("headers"));
+      req.response().end();
+      async.complete();
+    });
+    Call<ResponseBody> asyncCall = retrofit.create(SendHeaders.class).send("header_value", Arrays.asList("headers_value_1", "headers_value_2"));
+    asyncCall.execute();
+  }
+
+  public interface ReceiveHeaders {
+    @GET("/")
+    Call<ResponseBody> send();
+  }
+
+  @Test
+  public void receiveHeaders() throws Exception {
+    startHttpServer(req -> {
+      req.response()
+          .putHeader("header", "header_value")
+          .putHeader("headers", Arrays.<String>asList("header_value_1", "header_value_2"))
+          .end();
+    });
+    Call<ResponseBody> asyncCall = retrofit.create(ReceiveHeaders.class).send();
+    Response<ResponseBody> response = asyncCall.execute();
+    Headers headers = response.headers();
+    assertEquals("header_value", headers.get("header"));
+    assertEquals(Arrays.asList("header_value_1", "header_value_2"), headers.values("headers"));
+  }
+  public interface SendBody {
+    @PUT("/") //
+    Call<ResponseBody> sendBody(@Body RequestBody body);
+  }
+
   @Test
   public void sendBody(TestContext ctx) throws Exception {
     Async async = ctx.async();
@@ -161,7 +201,7 @@ public class ClientTest {
         async.complete();
       });
     });
-    Call<ResponseBody> asyncCall = retrofit.create(Abc.class).sendBody(RequestBody.create(MediaType.parse("text/plain"), "hello world"));
+    Call<ResponseBody> asyncCall = retrofit.create(SendBody.class).sendBody(RequestBody.create(MediaType.parse("text/plain"), "hello world"));
     asyncCall.execute();
   }
 

@@ -1,11 +1,13 @@
 package io.vertx.ext.retrofit;
 
 import io.vertx.core.Future;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -33,16 +35,16 @@ public class VertxRetrofit implements Call.Factory {
 
   private class VertxCall implements okhttp3.Call {
 
-    private final Request request;
+    private final Request retroRequest;
     private final AtomicBoolean executed = new AtomicBoolean();
 
-    VertxCall(Request request) {
-      this.request = request;
+    VertxCall(Request retroRequest) {
+      this.retroRequest = retroRequest;
     }
 
     @Override
     public Request request() {
-      return request;
+      return retroRequest;
     }
 
     @Override
@@ -90,13 +92,13 @@ public class VertxRetrofit implements Call.Factory {
             callback.onFailure(this, ioe);
           }
         });
-        HttpMethod method = HttpMethod.valueOf(request.method());
-        HttpClientRequest request = client.requestAbs(method, this.request.url().toString(), resp -> {
+        HttpMethod method = HttpMethod.valueOf(retroRequest.method());
+        HttpClientRequest request = client.requestAbs(method, this.retroRequest.url().toString(), resp -> {
           resp.exceptionHandler(fut::tryFail);
           resp.bodyHandler(body -> {
             Response.Builder builder = new Response.Builder();
             builder.protocol(Protocol.HTTP_1_1);
-            builder.request(this.request);
+            builder.request(this.retroRequest);
             builder.code(resp.statusCode());
             for (Map.Entry<String, String> header : resp.headers()) {
               builder.addHeader(header.getKey(), header.getValue());
@@ -108,8 +110,16 @@ public class VertxRetrofit implements Call.Factory {
           });
         });
         request.exceptionHandler(fut::tryFail);
+        int size = retroRequest.headers().size();
+        Headers retroHeaders = retroRequest.headers();
+        MultiMap headers = request.headers();
+        for (int i = 0;i < size;i++) {
+          String header = retroHeaders.name(i);
+          String value = retroHeaders.value(i);
+          headers.add(header, value);
+        }
         try {
-          RequestBody body = this.request.body();
+          RequestBody body = this.retroRequest.body();
           if (body != null && body.contentLength() > 0) {
             request.putHeader("content-length", "" + body.contentLength());
             Buffer buffer = new Buffer();
@@ -141,7 +151,7 @@ public class VertxRetrofit implements Call.Factory {
 
     @Override
     public Call clone() {
-      return new VertxCall(request);
+      return new VertxCall(retroRequest);
     }
   }
 
