@@ -28,7 +28,7 @@ dependencies {
 }
 ----
 
-You can read the link:http://www.julienviet.com/retrofit-adapter/guide/java/index.html[Documentation].
+You can read the link:http://www.julienviet.com/retrofit-vertx/guide/java/index.html[Documentation].
 
 == License
 
