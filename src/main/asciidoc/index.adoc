@@ -1,1 +1,213 @@
-The doc.
+= Retrofit Vert.x adapter
+
+An highly scalable transport layer for _Retrofit_.
+
+The _Retrofit Vert.x Adapter_ allows to use _Retrofit_ with the Vert.x library.
+
+Vert.x is a library that provides an highly scalable HTTP client that features
+
+- HTTP/1 or HTTP/2 transport
+- Connection pooling
+- SSL / TLS
+- Proxy support
+- Non blocking DNS resolution
+- Native SSL support (OpenSSL, BoringSSL, etc...)
+
+== Intro
+
+Retrofit turns your HTTP API into a Java interface.
+
+[source,java]
+----
+public interface GitHubService {
+  @GET("/repos/{owner}/repos")
+  Call<List<Repo>> listRepos(@Path("user") String owner);
+}
+----
+
+The Retrofit class generates an implementation of the GitHubService interface.
+
+[source,java]
+----
+Vertx vertx = Vertx.vertx();
+HttpClient client = vertx.createHttpClient();
+
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .callFactory(new VertxCallFactory(client))
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+----
+
+Each Call from the created GitHubService can make a synchronous or asynchronous HTTP request to the remote webserver.
+
+[source,java]
+----
+Call<List<Repo>> repos = service.listRepos("octocat");
+----
+
+== Usage
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.julienviet</groupId>
+  <artifactId>retrofit-vertx</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+----
+
+This version is for Retrofit 2.2.0 and Vert.x 3.4.1-SNAPSHOT
+
+== Going asynchronous
+
+You can call the `execute` method to perform a blocking http call on the current thread, or you can also enqueue
+an asynchronous call.
+
+[source,java]
+----
+repos.enqueue(new Callback<List<Repo>>() {
+  @Override
+  public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+    // Response is on Vert.x event loop thread
+  }
+
+  @Override
+  public void onFailure(Call<List<Repo>> call, Throwable t) {
+    // Failure is on Vert.x event loop thread
+  }
+});
+----
+
+Vert.x concurrency model is based on the reactor pattern, you can read more at http://vertx.io/docs/vertx-core/java/#_reactor_and_multi_reactor
+
+== Using with RxJava
+
+Retrofit provides an RxJava adapter you can use, to use it add the adapter library to your build file:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.squareup.retrofit2</groupId>
+  <artifactId>adapter-rxjava</artifactId>
+  <version>2.2.0</version>
+</dependency>
+----
+
+using is quite straightforward
+
+[source,java]
+----
+Retrofit retrofit = new Retrofit.Builder()
+  .baseUrl("https://api.github.com/")
+  .callFactory(new VertxCallFactory(client))
+  .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync())
+  .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+
+Single<ResponseBody> single = retrofit.create(GitHubService.class).body();
+single.subscribe(result -> {
+  // Callback on Vert.x event loop thread
+}, error -> {
+  // Error on Vert.x event loop thread
+});
+----
+
+NOTE: there is also an RxJava 2 adapter that works equally well
+
+== TLS/SSL configuration
+
+Configuring TLS/SSL with a Java truststore is done when creating the client
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions()
+    .setSsl(true)
+    .setTrustStoreOptions(
+        new JksOptions()
+        .setPath("/path/to/truststore")
+        .setPassword("the-password")));
+
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .callFactory(new VertxCallFactory(client))
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+----
+
+you can also use PKCS12 files
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions()
+    .setSsl(true)
+    .setPfxTrustOptions(
+        new PfxOptions()
+            .setPath("/path/to/pfxstore")
+            .setPassword("the-password"))); (io.vertx.core.Vertx)}
+----
+
+or even PEM files
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions()
+    .setSsl(true)
+    .setPemTrustOptions(
+        new PemTrustOptions()
+            .addCertPath("/path/to/pem1")
+            .addCertPath("/path/to/pem2")
+            .addCertPath("/path/to/pem3")));
+----
+
+== HTTP/2 support
+
+You can configure the client to use HTTP/2 protocol by setting the `alpn` and `protocol` options:
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions()
+    .setUseAlpn(true)
+    .setProtocolVersion(HttpVersion.HTTP_2)
+    .setSsl(true)
+    .setTrustStoreOptions(
+        new JksOptions()
+            .setPath("/path/to/truststore")
+            .setPassword("the-password")));
+
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .callFactory(new VertxCallFactory(client))
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+----
+
+You need also to configure ALPN for your JVM, you should http://vertx.io/docs/vertx-core/java/#ssl
+
+== Proxy support
+
+You can configure the client to use a _HTTP/1.x CONNECT_, _SOCKS4a_ or _SOCKS5_ proxy.
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions()
+    .setProxyOptions(new ProxyOptions()
+        .setType(ProxyType.SOCKS5)
+        .setHost("localhost")
+        .setPort(1080)
+        .setUsername("username")
+        .setPassword("secret")));
+
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .callFactory(new VertxCallFactory(client))
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+----
+
+To know more about proxy support, you should read you should read http://vertx.io/docs/vertx-core/java/#_using_a_proxy_for_client_connections
