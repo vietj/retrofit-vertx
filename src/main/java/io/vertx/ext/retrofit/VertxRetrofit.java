@@ -9,8 +9,10 @@ import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Buffer;
 
 import java.io.IOException;
 import java.util.Map;
@@ -90,6 +92,7 @@ public class VertxRetrofit implements Call.Factory {
         });
         HttpMethod method = HttpMethod.valueOf(request.method());
         HttpClientRequest request = client.requestAbs(method, this.request.url().toString(), resp -> {
+          resp.exceptionHandler(fut::tryFail);
           resp.bodyHandler(body -> {
             Response.Builder builder = new Response.Builder();
             builder.protocol(Protocol.HTTP_1_1);
@@ -105,6 +108,17 @@ public class VertxRetrofit implements Call.Factory {
           });
         });
         request.exceptionHandler(fut::tryFail);
+        try {
+          RequestBody body = this.request.body();
+          if (body != null && body.contentLength() > 0) {
+            request.putHeader("content-length", "" + body.contentLength());
+            Buffer buffer = new Buffer();
+            body.writeTo(buffer);
+            request.write(io.vertx.core.buffer.Buffer.buffer(buffer.readByteArray()));
+          }
+        } catch (IOException e) {
+          e.printStackTrace(); // ?
+        }
         request.end();
       } else {
         callback.onFailure(this, new IOException("Already executed"));
