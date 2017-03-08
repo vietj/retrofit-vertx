@@ -149,6 +149,7 @@
             </sourceFileIncludes>
             <links>
               <link>http://vertx.io/docs/apidocs/</link>
+              <link>http://square.github.io/retrofit/2.x/retrofit/</link>
             </links>
           </configuration>
         </plugin>
