@@ -27,6 +27,9 @@ public interface GitHubService {
 
 The Retrofit class generates an implementation of the GitHubService interface.
 
+The `link:../../apidocs/com/julienviet/retrofit/vertx/VertxCallFactory.html[VertxCallFactory]` implements Retrofit `link:../../apidocs/retrofit2/CallAdapter.html[CallAdapter]`
+delegating to a Vert.x `link:../../apidocs/io/vertx/core/http/HttpClient.html[HttpClient]`.
+
 [source,java]
 ----
 Vertx vertx = Vertx.vertx();

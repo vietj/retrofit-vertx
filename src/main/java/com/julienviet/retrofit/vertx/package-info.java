@@ -25,6 +25,9 @@
  *
  * The Retrofit class generates an implementation of the GitHubService interface.
  *
+ * The {@link com.julienviet.retrofit.vertx.VertxCallFactory} implements Retrofit {@link retrofit2.CallAdapter}
+ * delegating to a Vert.x {@link io.vertx.core.http.HttpClient}.
+ *
  * [source,java]
  * ----
  * {@link examples.Example#usage()}

@@ -131,7 +131,7 @@
                   <annotationProcessor>io.vertx.docgen.JavaDocGenProcessor</annotationProcessor>
                 </annotationProcessors>
                 <compilerArgs>
-                  <compilerArg>-Adocgen.output=${project.basedir}/src/main/asciidoc</compilerArg>
+                  <compilerArg>-Adocgen.output=${project.basedir}/src/main/asciidoc/java</compilerArg>
                   <compilerArg>-Aretrofit.version=${retrofit.version}</compilerArg>
                   <compilerArg>-Avertx.version=${vertx.version}</compilerArg>
                   <compilerArg>-Athis.version=${project.version}</compilerArg>
@@ -150,10 +150,52 @@
             <links>
               <link>http://vertx.io/docs/apidocs/</link>
               <link>http://square.github.io/retrofit/2.x/retrofit/</link>
+              <link>http://square.github.io/okhttp/3.x/okhttp/</link>
             </links>
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <!-- Documentation generation : activate with -Pdocs -->
+    <profile>
+      <id>docs</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>asciidoctor</id>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <configuration>
+                </configuration>
+                <phase>prepare-package</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
+                </configuration>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
