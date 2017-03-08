@@ -1,0 +1,41 @@
+== Retrofit Vert.x adapter
+
+An highly scalable adapter for _Retrofit_ with Vert.x
+
+Based on http://square.github.io/retrofit/ and http://vertx.io.
+
+== Using the adapter
+
+To use the adapter, add the following dependency to the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+  <groupId>com.julienviet</groupId>
+  <artifactId>retrofit-vertx</artifactId>
+  <version>1.0.0</version>
+</dependency>
+----
+
+* Gradle (in your `build.gradle` file):
+
+[source,groovy,subs="+attributes"]
+----
+dependencies {
+  compile 'com.julienviet:retrofit-vertx:1.0.0'
+}
+----
+
+You can read the link:http://www.julienviet.com/retrofit-adapter/guide/java/index.html[Documentation].
+
+== License
+
+Apache License - Version 2.0
+
+== Publishing docs
+
+* mvn package -Pdocs
+* cp -r target/docs docs/
+* mv docs/childprocess-vertx-ext docs/guide

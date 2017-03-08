@@ -1,7 +1,7 @@
 /**
  * = Retrofit Vert.x adapter
  *
- * An highly scalable transport layer for _Retrofit_.
+ * An highly scalable adapter for _Retrofit_.
  *
  * The _Retrofit Vert.x Adapter_ allows to use _Retrofit_ with the Vert.x library.
  *
