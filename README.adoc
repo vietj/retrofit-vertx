@@ -4,6 +4,15 @@ An highly scalable adapter for _Retrofit_ with Vert.x
 
 Based on http://square.github.io/retrofit/ and http://vertx.io.
 
+Supporting
+
+- HTTP/1 or HTTP/2 transport
+- Connection pooling
+- SSL / TLS
+- Proxy support
+- Non blocking DNS resolution
+- Native SSL support (OpenSSL, BoringSSL, etc…​)
+
 == Using the adapter
 
 To use the adapter, add the following dependency to the _dependencies_ section of your build descriptor:
