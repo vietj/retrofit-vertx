@@ -1,4 +1,4 @@
-package io.vertx.ext.retrofit;
+package com.julienviet.retrofit.vertx;
 
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
@@ -25,11 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class VertxRetrofit implements Call.Factory {
+public class VertxCallFactory implements Call.Factory {
 
   private final HttpClient client;
 
-  public VertxRetrofit(HttpClient client) {
+  public VertxCallFactory(HttpClient client) {
     this.client = client;
   }
 

@@ -1,5 +1,6 @@
-package retrofit2;
+package com.julienviet.retrofit.vertx.test;
 
+import com.julienviet.retrofit.vertx.VertxCallFactory;
 import io.netty.handler.codec.TooLongFrameException;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -7,7 +8,6 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.NetSocket;
-import io.vertx.ext.retrofit.VertxRetrofit;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -19,7 +19,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import retrofit2.adapter.rxjava.Result;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
@@ -71,7 +73,7 @@ public class ClientTest {
     vertx = Vertx.vertx();
     client = vertx.createHttpClient();
     retrofit = new Retrofit.Builder()
-        .callFactory(new VertxRetrofit(client))
+        .callFactory(new VertxCallFactory(client))
         .baseUrl(API_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync())
