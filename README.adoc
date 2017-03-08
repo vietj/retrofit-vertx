@@ -38,4 +38,4 @@ Apache License - Version 2.0
 
 * mvn package -Pdocs
 * cp -r target/docs docs/
-* mv docs/childprocess-vertx-ext docs/guide
+* mv docs/retrofit-vertx docs/guide
