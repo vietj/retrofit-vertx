@@ -19,13 +19,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import retrofit2.adapter.rxjava.Result;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import rx.Single;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -70,6 +74,7 @@ public class ClientTest {
         .callFactory(new VertxRetrofit(client))
         .baseUrl(API_URL)
         .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync())
         .build();
   }
 
@@ -205,6 +210,29 @@ public class ClientTest {
     asyncCall.execute();
   }
 
+  interface RxJava {
+    @GET("/")
+    Single<ResponseBody> body();
+  }
+
+  @Test
+  public void testRxJava(TestContext ctx) throws Exception {
+    Async async = ctx.async();
+    startHttpServer(req -> {
+      req.response().end("the result");
+    });
+    Single<ResponseBody> single = retrofit.create(RxJava.class).body();
+    single.subscribe(result -> {
+      try {
+        ctx.assertNotNull(Vertx.currentContext());
+        ctx.assertEquals("the result", result.string());
+        async.complete();
+      } catch (IOException e) {
+        ctx.fail(e);
+      }
+    }, ctx::fail);
+  }
+
   private void startHttpServer() throws Exception {
     startHttpServer(req -> {
       switch (req.path()) {
@@ -230,6 +258,4 @@ public class ClientTest {
     });
     latch.get(10, TimeUnit.SECONDS);
   }
-
-
 }
