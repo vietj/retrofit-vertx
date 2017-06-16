@@ -74,7 +74,7 @@
  * <dependency>
  *   <groupId>com.squareup.retrofit2</groupId>
  *   <artifactId>adapter-rxjava</artifactId>
- *   <version>2.2.0</version>
+ *   <version>2.3.0</version>
  * </dependency>
  * ----
  *

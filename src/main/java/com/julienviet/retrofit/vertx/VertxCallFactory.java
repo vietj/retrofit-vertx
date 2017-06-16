@@ -100,6 +100,7 @@ public class VertxCallFactory implements Call.Factory {
             builder.protocol(Protocol.HTTP_1_1);
             builder.request(this.retroRequest);
             builder.code(resp.statusCode());
+            builder.message(resp.statusMessage());
             for (Map.Entry<String, String> header : resp.headers()) {
               builder.addHeader(header.getKey(), header.getValue());
             }
