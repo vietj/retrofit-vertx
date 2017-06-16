@@ -1,4 +1,4 @@
-== Retrofit Vert.x adapter
+## Retrofit Vert.x adapter
 
 An highly scalable adapter for _Retrofit_ with Vert.x
 
@@ -13,37 +13,51 @@ Supporting
 - Non blocking DNS resolution
 - Native SSL support (OpenSSL, BoringSSL, etc…​)
 
-== Using the adapter
+## Usage
 
 To use the adapter, add the following dependency to the _dependencies_ section of your build descriptor:
 
 * Maven (in your `pom.xml`):
 
-[source,xml,subs="+attributes"]
-----
+```
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
   <version>1.0.1</version>
 </dependency>
-----
+```
 
 * Gradle (in your `build.gradle` file):
 
-[source,groovy,subs="+attributes"]
-----
+```
 dependencies {
   compile 'com.julienviet:retrofit-vertx:1.0.1'
 }
-----
+```
 
-You can read the link:http://www.julienviet.com/retrofit-vertx/guide/java/index.html[Documentation].
+You can read the [Documentation](http://www.julienviet.com/retrofit-vertx/guide/java/index.html).
 
-== License
+## Snapshots
+
+[![Build Status](https://travis-ci.org/vietj/retrofit-vertx.svg?branch=master)](https://travis-ci.org/vietj/retrofit-vertx)
+
+Use the dependency
+
+```
+<dependency>
+  <groupId>com.julienviet</groupId>
+  <artifactId>retrofit-vertx</artifactId>
+  <version>1.0.2-SNAPSHOT</version>
+</dependency>
+```
+
+Snapshots are deploy in Sonatype OSS repository: https://oss.sonatype.org/content/repositories/snapshots/com/julienviet/retrofit-vertx/
+
+## License
 
 Apache License - Version 2.0
 
-== Publishing docs
+## Publishing docs
 
 * mvn package -Pdocs
 * cp -r target/docs docs/

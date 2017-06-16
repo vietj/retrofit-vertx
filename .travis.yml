@@ -1,0 +1,18 @@
+language: java
+jdk:
+- oraclejdk8
+env:
+  global:
+  - secure: 0gcuD3BiWF88DoKSnRCZ+tmgLPnW9qtjm4JtXH2VKbDOthtYU9Ma/NWfhHxXaX/LNUEzl9Wo9/je/HQhCSLE/VE/oExFuFq/5qkomkmE0RGB/qDmCXSynaINVlUbK9MTUM80ttJZzX4mcMn9BElrwsTC6vRRp7GMnf7lG16prdV3XGhVF1jkWXLrcxbxAW4WcWs0Lgp5WFFcCshomm2RFguDZFgUpj94QH5SY5Gmg+q4g48jB0cE55mhOELW5jtjZCRLasXfTjvJ5E558RDNotovaE8rVroVz6wHT7s1tQ4z3MpCVqUOCHaptZnllIz345MEFq71WfAYc7OROwpwwCZ/gFouyzELOzSKABDtwUGx16sfmIJhGjQ7Itg3A//RC14Cm+tcq5eVVL/0L2bb3u59IHxrXe8jtLhGzi1t5lcjon+08zR8biYrSKdXCbgjHaCgWbtfw0HVTOmllLN4Qbcs6eqRPJUh3IgwgbA1+rkx09NQS6B2TwYTVNsTVd3Ka21IsMBgpcSD2cFnnI0YP2s33wpSzLb+KPC52AhlM+bkBqhi0dGzf4RR7S9OB19yxtMEc5r+sEuDRC0uQYqkHRuMMamUfc7WaZUxFXtRVls8XeVuqnLKwb7cXzidEAHtVWR/YMeRpltWxzh6vn/ktRKQ3yXrCpZumvGCmNK6GrY=
+  - secure: hF+ov3NYoLZorKm6d2YtaImAgwAy845aCMk2VSETQkg51AjhqV7lg2NDUQ74jrUqz8npNUUvl0SUCb+PaRSN16JFMe0V6nEQFj6oS/n5Ft0Big35Tf804C1Rkdgkvdz54WZI2KhJiSDqOroxcbOBdCH0InwrY4U26F51cVqB/AUQnrj6itWr6N6PBUKDWb0WrrYEn3f77SQFRRvUgA8QOTQl1sxEyxTTcMYxOACw4GQcVLDyGonSr1EEA9o3M3d+AXBozZOMk+XcQYuZsPuhwlw1IPECkpGaDfhTVMcbKeQGMAuYP8WJLxmg/zqHdW3kp/wm4RG6SJlNsHN1DWcaELbucSV0yi5AixVhhtz+hv1hlhcOZP//oNJKNiMIWWNXPdkVXp1U+clrLZ+kuVkMPA0x5tUcRZLC2t/udvhEjf//b4B/zgvBpAcil2Q26VsZyR/GRJdOwirH9i8nNktbQbI1cxLr/AbEg2Sa3AESBCJmfdbKBGm3PhGWAnybiPEjwDV7HLIphuYPd1NVeqYqugM5XxioV48+msVRvg03b2YO4ItnUdrIdNTAP8Cdlb0yQ6b/zRbeqcPx9QGlx2NxZGnDZCTzbz94rZS9FbDaUQuF1HXW/++3/oR4XBlkStoqIy2vmKsmpNc6jpvMzLM0xcMzs30OyGT25A6/ztA5mJ8=
+before_install:
+- cp .travis.maven.settings.xml $HOME/.m2/settings.xml
+script:
+- set -e
+- bash .travis.deploy.artifacts.sh
+notifications:
+  email:
+    recipients:
+    - julien@julienviet.com
+    on_success: always
+    on_failure: always
