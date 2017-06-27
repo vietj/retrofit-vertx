@@ -23,7 +23,7 @@ To use the adapter, add the following dependency to the _dependencies_ section o
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ To use the adapter, add the following dependency to the _dependencies_ section o
 
 ```
 dependencies {
-  compile 'com.julienviet:retrofit-vertx:1.0.1'
+  compile 'com.julienviet:retrofit-vertx:1.0.2'
 }
 ```
 
@@ -47,7 +47,7 @@ Use the dependency
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.3-SNAPSHOT</version>
 </dependency>
 ```
 

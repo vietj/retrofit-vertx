@@ -57,7 +57,7 @@ Call<List<Repo>> repos = service.listRepos("octocat");
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
 </dependency>
 ----
 
@@ -94,7 +94,7 @@ Retrofit provides an RxJava adapter you can use, to use it add the adapter libra
 <dependency>
   <groupId>com.squareup.retrofit2</groupId>
   <artifactId>adapter-rxjava</artifactId>
-  <version>2.2.0</version>
+  <version>2.3.0</version>
 </dependency>
 ----
 
