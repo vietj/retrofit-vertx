@@ -57,11 +57,11 @@ Call<List<Repo>> repos = service.listRepos("octocat");
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3-SNAPSHOT</version>
 </dependency>
 ----
 
-This version is for Retrofit 2.3.0 and Vert.x 3.4.2
+This version is for Retrofit 2.3.0 and Vert.x 3.5.0
 
 == Going asynchronous
 
