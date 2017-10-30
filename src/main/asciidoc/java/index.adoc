@@ -57,7 +57,7 @@ Call<List<Repo>> repos = service.listRepos("octocat");
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.1.0</version>
 </dependency>
 ----
 

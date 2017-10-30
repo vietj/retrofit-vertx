@@ -12,6 +12,7 @@ Supporting
 - Proxy support
 - Non blocking DNS resolution
 - Native SSL support (OpenSSL, BoringSSL, etc…​)
+- Native transports (Epoll, KQueue)
 
 ## Usage
 
@@ -23,7 +24,7 @@ To use the adapter, add the following dependency to the _dependencies_ section o
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.2</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -31,7 +32,7 @@ To use the adapter, add the following dependency to the _dependencies_ section o
 
 ```
 dependencies {
-  compile 'com.julienviet:retrofit-vertx:1.0.2'
+  compile 'com.julienviet:retrofit-vertx:1.1.0'
 }
 ```
 
@@ -47,7 +48,7 @@ Use the dependency
 <dependency>
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.1.1-SNAPSHOT</version>
 </dependency>
 ```
 
