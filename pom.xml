@@ -27,7 +27,7 @@
 
   <groupId>com.julienviet</groupId>
   <artifactId>retrofit-vertx</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2-SNAPSHOT</version>
 
   <name>Retrofit Vert.x adapter</name>
   <url>https://github.com/vietj/retrofit-vertx</url>
