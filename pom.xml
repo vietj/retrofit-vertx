@@ -55,8 +55,8 @@
   </developers>
 
   <properties>
-    <vertx.version>3.5.1</vertx.version>
-    <retrofit.version>2.3.0</retrofit.version>
+    <vertx.version>3.5.2</vertx.version>
+    <retrofit.version>2.4.0</retrofit.version>
   </properties>
 
   <dependencyManagement>
