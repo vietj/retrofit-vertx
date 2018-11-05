@@ -122,6 +122,9 @@ public class VertxCallFactory implements Call.Factory {
         try {
           RequestBody body = this.retroRequest.body();
           if (body != null && body.contentLength() > 0) {
+            MediaType mediaType = body.contentType();
+            request.putHeader("content-type", mediaType.toString());
+
             request.putHeader("content-length", "" + body.contentLength());
             Buffer buffer = new Buffer();
             body.writeTo(buffer);
