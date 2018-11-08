@@ -24,16 +24,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 import rx.Single;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +79,26 @@ public class ClientTest {
   public void tearDown(TestContext ctx) {
     vertx.close(ctx.asyncAssertSuccess());
   }
+
+  public interface PostBody {
+    @FormUrlEncoded
+    @POST("/")
+    Call<ResponseBody> send(@Field("Field1") String field1);
+  }
+
+  @Test
+  public void testContentType(TestContext ctx) throws Exception {
+    Async async = ctx.async();
+    startHttpServer(req -> {
+      ctx.assertEquals("application/x-www-form-urlencoded", req.getHeader("Content-Type"));
+      req.response().end();
+      async.complete();
+    });
+
+    Call<ResponseBody> asyncCall = retrofit.create(PostBody.class).send("fieldvalue");
+    asyncCall.execute();
+  }
+
 
   @Test
   public void testAsync(TestContext ctx) throws Exception {
