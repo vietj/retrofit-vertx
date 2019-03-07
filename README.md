@@ -36,7 +36,7 @@ dependencies {
 }
 ```
 
-You can read the [Documentation](http://www.julienviet.com/retrofit-vertx/guide/java/index.html).
+You can read the [Documentation](http://www.julienviet.com/retrofit-vertx/java/index.html).
 
 ## Snapshots
 
