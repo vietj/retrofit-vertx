@@ -15,6 +15,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
+import okio.Timeout;
 
 import java.io.IOException;
 import java.util.Map;
@@ -151,6 +152,11 @@ public class VertxCallFactory implements Call.Factory {
     @Override
     public boolean isCanceled() {
       return false;
+    }
+
+    @Override
+    public Timeout timeout() {
+      return Timeout.NONE;
     }
 
     @Override
