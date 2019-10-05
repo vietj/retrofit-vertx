@@ -61,7 +61,7 @@ Call<List<Repo>> repos = service.listRepos("octocat");
 </dependency>
 ----
 
-This version is for Retrofit 2.6.0 and Vert.x 3.5.4
+This version is for Retrofit 2.6.0 and Vert.x 3.8.1
 
 == Going asynchronous
 
