@@ -40,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(VertxUnitRunner.class)
 public class ClientTest {
 
-  public static final String API_URL = "http://localhost:8080";
+  private static final String API_URL = "http://localhost:8080";
 
   public static class Contributor {
     public final String login;
@@ -145,7 +145,7 @@ public class ClientTest {
 //  @Test
   public void testResponseError(TestContext ctx) throws Exception {
     startHttpServer(req -> {
-      NetSocket so = req.netSocket();
+      NetSocket so = req.toNetSocket().result();
       so.write("HTTP/1.1 200 OK\r\n");
       so.write("Transfer-Encoding: chunked\r\n");
       so.write("\r\n");
